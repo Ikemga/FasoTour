@@ -1,4 +1,14 @@
 package egate.digital.fasotour.dto.paie;
 
-public record PaiementResponseDTO() {
-}
+import java.util.Date;
+
+public record PaiementResponseDTO(
+        Long id,
+        Double montant,
+        Double montantPaye,
+        Date datePaiement,
+        String reference,
+        String statut,
+        Long reservationId,
+        FactureDTO facture
+) {}
