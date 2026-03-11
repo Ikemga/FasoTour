@@ -1,5 +1,7 @@
 package egate.digital.fasotour.mappers;
 
+import java.time.Duration;
+import java.time.temporal.Temporal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -58,6 +60,11 @@ public class CircuitMapper {
                 circuit.getCreatedAt(),
                 circuit.getStatut(),
                 circuit.isTransport(),
+                // Add
+                circuit.getLieuRassemblement(),
+                circuit.getHeureDepart(),
+                circuit.getDateLimiteReservation(),
+
                 guideDTOs,
                 agenceDTO,
                 siteDTOs
@@ -78,7 +85,7 @@ public class CircuitMapper {
         circuit.setDateDebut(dto.dateDebut());
         circuit.setDateFin(dto.dateFin());
         circuit.setDescription(dto.description());
-        circuit.setDuree(dto.duree());
+        circuit.setDuree(Duration.between((Temporal) dto.dateDebut(), (Temporal) dto.dateFin()));
         circuit.setPrixIndividuel(dto.prixIndividuel());
         circuit.setNombreMini(dto.nombreMini());
         circuit.setNombreMax(dto.nombreMax());

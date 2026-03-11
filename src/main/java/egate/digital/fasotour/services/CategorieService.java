@@ -1,7 +1,11 @@
 package egate.digital.fasotour.services;
 
+import egate.digital.fasotour.dto.site.SiteTouristiqueResponseDTO;
+import egate.digital.fasotour.mappers.SiteTouristiqueMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,6 +64,27 @@ public class CategorieService {
 
         return CategorieMapper.toResponseDTO(categorieRepository.save(categorie));
     }
+
+
+    public List<CategorieResponseDTO> getAllCategorieNewestFirst() {
+        return categorieRepository.findAllNewestFirst()
+                .stream()
+                .map(CategorieMapper::toResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    public Page<CategorieResponseDTO> findAll(Pageable pageable) {
+        return categorieRepository.findAll(pageable)
+                .map(CategorieMapper::toResponseDTO);
+    }
+
+    public List<CategorieResponseDTO> getAllCategorieAlphabetical() {
+        return categorieRepository.findAllAlphabetical()
+                .stream()
+                .map(CategorieMapper::toResponseDTO)
+                .collect(Collectors.toList());
+    }
+
 
     @Transactional
     public void deleteCategorie(Long id) {

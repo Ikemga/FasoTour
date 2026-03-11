@@ -4,7 +4,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import egate.digital.fasotour.dto.site.SiteTouristiqueResponseDTO;
+import egate.digital.fasotour.mappers.SiteTouristiqueMapper;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +48,35 @@ public class CircuitService {
         return circuitRepository.findByCircuitName(circuit)
                 .map(CircuitMapper::toResponseDTO)
                 .orElseThrow(() -> new RuntimeException("Circuit non trouvé : " + circuit));
+    }
+
+    // Plus récent en premier
+    public List<CircuitResponseDTO> getCircuitsOrderByCreatedAtDesc() {
+        return circuitRepository.findAllOrderByCreatedAtDesc()
+                .stream().map(CircuitMapper::toResponseDTO).collect(Collectors.toList());
+    }
+
+    // Plus ancien en premier
+    public List<CircuitResponseDTO> getCircuitsOrderByCreatedAtAsc() {
+        return circuitRepository.findAllOrderByCreatedAtAsc()
+                .stream().map(CircuitMapper::toResponseDTO).collect(Collectors.toList());
+    }
+
+    // Alphabétique A → Z
+    public List<CircuitResponseDTO> getCircuitsOrderByNameAsc() {
+        return circuitRepository.findAllOrderByNameAsc()
+                .stream().map(CircuitMapper::toResponseDTO).collect(Collectors.toList());
+    }
+
+    // Alphabétique Z → A
+    public List<CircuitResponseDTO> getCircuitsOrderByNameDesc() {
+        return circuitRepository.findAllOrderByNameDesc()
+                .stream().map(CircuitMapper::toResponseDTO).collect(Collectors.toList());
+    }
+
+    public Page<CircuitResponseDTO> findPage(Pageable pageable) {
+        return circuitRepository.findAll(pageable)
+                .map(CircuitMapper::toResponseDTO);
     }
 
     @Transactional

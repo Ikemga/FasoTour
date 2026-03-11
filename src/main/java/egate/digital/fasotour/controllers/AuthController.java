@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/v1/auth")
 @AllArgsConstructor
 public class AuthController {
@@ -177,7 +178,7 @@ public class AuthController {
     @Transactional
     public ResponseEntity<Map<String, String>> initAdmin() {
 
-        if (utilisateurRepository.findByMail("admin@fasotour.bf").isPresent()) {
+        if (utilisateurRepository.findByMail("admin@fasotour.com").isPresent()) {
             return ResponseEntity.badRequest()
                     .body(Map.of("message", "Admin déjà existant !"));
         }
@@ -193,7 +194,7 @@ public class AuthController {
 
         Touriste admin = new Touriste();
         admin.setNomComplet("Administrateur FasoTour");
-        admin.setMail("admin@fasotour.bf");
+        admin.setMail("admin@fasotour.com");
         admin.setMotDePasse(passwordEncoder.encode("Admin@2024!"));
         admin.setTelephone("+226 67 54 32 91");
         admin.setAdresse("Ouagadougou, Burkina Faso");
@@ -206,7 +207,7 @@ public class AuthController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                 "message", "Admin créé avec succès !",
-                "mail",    "admin@fasotour.bf",
+                "mail",    "admin@fasotour.com",
                 "motDePasse", "Admin@2024!"
         ));
     }

@@ -15,16 +15,14 @@ public class SiteTouristiqueMapper {
 
         if (site == null) return null;
 
-        List<CategorieResponseDTO> categoriesDTO = null;
+        List<CategorieSimpledDTO> categoriesDTO = null;
 
         if (site.getCategories() != null) {
             categoriesDTO = new ArrayList<>(site.getCategories())
                     .stream()
-                    .map(cat -> new CategorieResponseDTO(
+                    .map(cat -> new CategorieSimpledDTO(
                             cat.getId(),
-                            cat.getCategorie(),
-                            cat.getDescription(),
-                            cat.getStatut()
+                            cat.getCategorie()
                     ))
                     .collect(Collectors.toList());
         }
@@ -38,8 +36,13 @@ public class SiteTouristiqueMapper {
                 site.getNoteMoyenne(),
                 site.getVideo(),
                 site.getFichier(),
-                site.getCreateedAt(),
+                site.getCreatedAt(),
                 site.getLocalisation(),
+                //Add Attribut
+                site.getHoraire(),
+                site.getTarif(),
+                site.getStatut(),
+
                 categoriesDTO
         );
     }
@@ -56,6 +59,13 @@ public class SiteTouristiqueMapper {
         site.setVideo(dto.video());
         site.setFichier(dto.fichier());
         site.setLocalisation(dto.localisation());
+        //Add Attribut
+        site.setHoraire(dto.horaire());
+        site.setTarif(dto.tarif());
+        site.setStatut(dto.statut());
+
+
+
         return site;
     }
 }

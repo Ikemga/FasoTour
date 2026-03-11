@@ -37,5 +37,7 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
            "(r.revoked = true AND r.createdAt < :threshold)")
     void deleteExpiredAndRevoked(@Param("threshold") Instant threshold);
 
-    void deleteByUtilisateurId(Long utilisateurId);
+    @Modifying
+    @Query("DELETE FROM RefreshToken rt WHERE rt.utilisateur.id = :userId")
+    void deleteByUtilisateurId(@Param("userId") Long userId);
 }

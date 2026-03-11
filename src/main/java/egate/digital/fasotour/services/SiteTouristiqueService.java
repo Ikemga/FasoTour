@@ -13,11 +13,9 @@ import egate.digital.fasotour.model.Categorie;
 import egate.digital.fasotour.model.SiteTouristique;
 import egate.digital.fasotour.repository.CategorieRepository;
 import egate.digital.fasotour.repository.SiteTouristiqueRepository;
+import org.springframework.util.StringUtils;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,6 +37,21 @@ public class SiteTouristiqueService {
                 .map(SiteTouristiqueMapper::toResponseDTO);
     }
 
+    public List<SiteTouristiqueResponseDTO> getAllSitesNewestFirst() {
+        return siteTouristiqueRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .map(SiteTouristiqueMapper::toResponseDTO)
+                .toList();
+    }
+        // searc
+    public List<SiteTouristiqueResponseDTO> search(String q) {
+        if (q == null || q.isBlank()) return getAllSitesNewestFirst();
+        return siteTouristiqueRepository.search(q.trim())
+                .stream()
+                .map(SiteTouristiqueMapper::toResponseDTO)
+                .toList();
+    }
+
     public SiteTouristiqueResponseDTO findById(Long id) {
         return siteTouristiqueRepository.findById(id)
                 .map(SiteTouristiqueMapper::toResponseDTO)
@@ -55,9 +68,8 @@ public class SiteTouristiqueService {
 
     @Transactional
     public SiteTouristiqueResponseDTO create(SiteTouristiqueRequestDTO dto) {
-        if (siteTouristiqueRepository.existsByNom(dto.nom())) {
-            throw new EntityNotFoundException("Le site existe déjà !");
-        }
+        validerSiteTouristique(dto);
+
         SiteTouristique site = SiteTouristiqueMapper.toEntity(dto);
         site.setCategories(resolveCategories(dto.categorieIds()));
         return SiteTouristiqueMapper.toResponseDTO(siteTouristiqueRepository.save(site));
@@ -91,9 +103,27 @@ public class SiteTouristiqueService {
         siteTouristiqueRepository.deleteById(id);
     }
 
-    public Long getCount(){
-        return  siteTouristiqueRepository.count();
+
+    private void validerSiteTouristique(SiteTouristiqueRequestDTO dto) {
+        Map<String, String> textFields = new LinkedHashMap<>();
+        textFields.put("nom",          dto.nom());
+        textFields.put("localisation", dto.localisation());
+        textFields.put("statut",       dto.statut());
+
+        textFields.forEach((champ, valeur) -> {
+            if (!StringUtils.hasText(valeur))
+                throw new IllegalArgumentException(
+                        "Le champ " + champ + " ne peut pas être vide !");
+        });
+
+        if (dto.horaire() == null)
+            throw new IllegalArgumentException("Les horaires ne peuvent pas être vides !");
+
+        if (siteTouristiqueRepository.existsByNom(dto.nom()))
+            throw new IllegalStateException("Un site avec ce nom existe déjà !");
     }
+
+
 
     private Set<Categorie> resolveCategories(List<Long> ids) {
         if (ids == null || ids.isEmpty()) return Collections.emptySet();

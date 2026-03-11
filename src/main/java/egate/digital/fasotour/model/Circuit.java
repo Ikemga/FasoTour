@@ -1,11 +1,9 @@
 package egate.digital.fasotour.model;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalTime;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -29,10 +27,9 @@ public class Circuit {
 
     @Column(name = "dateDebut")
     private Date dateDebut;
-
     private Date dateFin;
     private String description;
-    private String duree;
+    private Duration duree;
     private Double prixIndividuel;
     private int nombreMini;
     private int nombreMax;
@@ -40,6 +37,10 @@ public class Circuit {
     private LocalDateTime createdAt;
     private String statut;
     private boolean transport = false;
+    //Add attribut
+    private String lieuRassemblement;
+    private LocalTime heureDepart;
+    private LocalDateTime dateLimiteReservation;
 
     @OneToMany(mappedBy = "circuit", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
@@ -61,7 +62,7 @@ public class Circuit {
     @JoinColumn(name = "agence_id", nullable = true)
     private Agence agence;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany()
     @JoinTable(
             name = "circuit_site",
             joinColumns = @JoinColumn(name = "circuit_id"),

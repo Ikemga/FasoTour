@@ -116,6 +116,7 @@ public class RefreshTokenService {
     }*/
 package egate.digital.fasotour.security.refreshtoken;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -133,12 +134,15 @@ import java.util.UUID;
 public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
+    private final EntityManager entityManager;
     private final long refreshTokenExpirationMs = 604_800_000; // 7 jours
 
     @Transactional
     public RefreshToken createTokenForNewSession(Utilisateur user, String ip, String userAgent) {
         // Supprime l’ancien token
         refreshTokenRepository.deleteByUtilisateurId(user.getId());
+        refreshTokenRepository.flush(); // ← Forcer le DELETE avant l'INSERT
+        entityManager.clear();
 
         RefreshToken newToken = RefreshToken.builder()
                 .token(UUID.randomUUID().toString())
@@ -173,6 +177,8 @@ public class RefreshTokenService {
 
         token.setUsed(true);
         refreshTokenRepository.save(token);
+        refreshTokenRepository.flush();
+        //entityManager.clear();
 
         // Nouveau token avec le même familyId
         RefreshToken newToken = RefreshToken.builder()

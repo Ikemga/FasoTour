@@ -2,6 +2,7 @@ package egate.digital.fasotour.controllers;
 
 import egate.digital.fasotour.dto.site.CategorieRequestDTO;
 import egate.digital.fasotour.dto.site.CategorieResponseDTO;
+import egate.digital.fasotour.model.SiteTouristique;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("v1/sites")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 public class SiteTouristiqueController {
 
     private final SiteTouristiqueService siteTouristiqueService;
@@ -29,6 +31,19 @@ public class SiteTouristiqueController {
     public ResponseEntity<Page<SiteTouristiqueResponseDTO>> getAll(
             @PageableDefault(size = 10) Pageable pageable) {
         return ResponseEntity.ok(siteTouristiqueService.findAll(pageable));
+    }
+
+
+    @GetMapping("/all")
+    public List<SiteTouristiqueResponseDTO> getSites() {
+        return siteTouristiqueService.getAllSitesNewestFirst();
+    }
+
+    //Search
+    @GetMapping("/search")
+    public ResponseEntity<List<SiteTouristiqueResponseDTO>> search(
+            @RequestParam(required = false) String q) {
+        return ResponseEntity.ok(siteTouristiqueService.search(q));
     }
 
     // GET /api/v1/sites/{id}
@@ -54,7 +69,7 @@ public class SiteTouristiqueController {
                 .body(siteTouristiqueService.create(dto));
     }
 
-    // POST /api/v1/sites/batch
+    // POST /api/v1/sites/batch Many
     @PostMapping("batch")
     public ResponseEntity<List<SiteTouristiqueResponseDTO>> createBatch(
             @RequestBody List<SiteTouristiqueRequestDTO> dtos) {
@@ -81,11 +96,5 @@ public class SiteTouristiqueController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         siteTouristiqueService.delete(id);
         return ResponseEntity.noContent().build();
-    }
-
-    // DELETE /api/v1/sites/{id}
-    @GetMapping("Count")
-    Long getCount(){
-        return  this.siteTouristiqueService.getCount();
     }
 }

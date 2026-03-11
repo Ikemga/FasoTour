@@ -1,6 +1,7 @@
 package egate.digital.fasotour.model;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -33,16 +34,21 @@ public class SiteTouristique {
 
     private String region;
 
-    private String image;
-
     private String noteMoyenne;
+
+    private String image;
 
     private String video;
 
     private String fichier;
 
+    // Add Attribut
+    private LocalTime horaire;
+    private Double tarif;
+    private String statut = "Actif";
+
     @CreationTimestamp
-    private LocalDateTime createedAt = LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     private String localisation;
 

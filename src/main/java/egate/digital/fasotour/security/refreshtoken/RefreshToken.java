@@ -12,6 +12,9 @@ import egate.digital.fasotour.model.Utilisateur;
                 @Index(name = "idx_rt_token", columnList = "token", unique = true),
                 @Index(name = "idx_rt_family_id", columnList = "family_id"),
                 @Index(name = "idx_rt_user_id", columnList = "utilisateur_id")
+        },
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "utilisateur_id")
         })
 @Getter @Setter @Builder
 @AllArgsConstructor @NoArgsConstructor
