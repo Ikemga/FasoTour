@@ -22,6 +22,10 @@ public class GuideController {
         return ResponseEntity.ok(authService.getAllGuides());
     }
 
+    @GetMapping("/order/name/desc")
+    public ResponseEntity<List<GuideResponseDTO>> getAllOrderAlp() {
+        return ResponseEntity.ok(authService.getAllGuidesorderAlp());
+    }
     @GetMapping("/{id}")
     public ResponseEntity<GuideResponseDTO> getById(@PathVariable Long id) {
         return ResponseEntity.ok(authService.getGuideById(id));

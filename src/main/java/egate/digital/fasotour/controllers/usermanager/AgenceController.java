@@ -22,6 +22,12 @@ public class AgenceController {
         return ResponseEntity.ok(authService.getAllAgences());
     }
 
+
+    @GetMapping("/order/name/desc")
+    public ResponseEntity<List<AgenceResponseDTO>> getAllAgencesorder() {
+        return ResponseEntity.ok(authService.getAllAgencesorder());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<AgenceResponseDTO> getById(@PathVariable Long id) {
         return ResponseEntity.ok(authService.getAgenceById(id));

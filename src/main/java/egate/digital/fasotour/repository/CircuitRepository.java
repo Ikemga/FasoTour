@@ -4,12 +4,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import egate.digital.fasotour.model.Circuit;
 import org.springframework.data.jpa.repository.Query;
-
-import java.util.Collection;
+import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
 public interface CircuitRepository extends JpaRepository<Circuit, Long>{
+
     Boolean existsByCircuitName(String circuitName);
     Optional<Circuit> findByCircuitName(String circuitName);
 
@@ -29,4 +29,7 @@ public interface CircuitRepository extends JpaRepository<Circuit, Long>{
 
     @Query("SELECT c FROM Circuit c ORDER BY c.circuitName DESC")
     List<Circuit> findAllOrderByNameDesc();
+
+    @Query("SELECT c FROM Circuit c WHERE LOWER(c.circuitName) LIKE LOWER(CONCAT('%', :circuitName, '%'))")
+    List<Circuit> searchByName(@Param("circuitName") String circuitName);
 }

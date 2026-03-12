@@ -59,6 +59,11 @@ public class SiteTouristiqueController {
         return ResponseEntity.ok(siteTouristiqueService.findByRegion(region));
     }
 
+    @GetMapping("/alphabetical")
+    public ResponseEntity<List<SiteTouristiqueResponseDTO>> getAllAlphabetical() {
+        return ResponseEntity.ok(siteTouristiqueService.getAllAlphabetical());
+    }
+    
     // Site mager --------------------------------------------------------------------
     // POST /api/v1/sites
     @PostMapping

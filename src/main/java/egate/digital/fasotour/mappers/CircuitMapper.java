@@ -1,7 +1,7 @@
 package egate.digital.fasotour.mappers;
 
 import java.time.Duration;
-import java.time.temporal.Temporal;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -16,10 +16,11 @@ public class CircuitMapper {
 
     private CircuitMapper() {}
 
-
+    // ── Entity → ResponseDTO ───────────────────────────────────────────────
     public static CircuitResponseDTO toResponseDTO(Circuit circuit) {
         if (circuit == null) return null;
 
+        // Guides
         List<GuideSimpleDTO> guideDTOs = Collections.emptyList();
         if (circuit.getGuides() != null) {
             guideDTOs = circuit.getGuides()
@@ -46,32 +47,35 @@ public class CircuitMapper {
                     .collect(Collectors.toList());
         }
 
+        // Convertir Duration en Long (jours)
+        Long duree = circuit.getDuree() != null
+                ? circuit.getDuree().toDays()
+                : null;
+
         return new CircuitResponseDTO(
                 circuit.getId(),
                 circuit.getCircuitName(),
                 circuit.getDateDebut(),
                 circuit.getDateFin(),
                 circuit.getDescription(),
-                circuit.getDuree(),
+                duree,
                 circuit.getPrixIndividuel(),
-                circuit.getNombreMini(),
-                circuit.getNombreMax(),
                 circuit.getNombreExact(),
+                circuit.getNombreRestant(),
                 circuit.getCreatedAt(),
                 circuit.getStatut(),
                 circuit.isTransport(),
-                // Add
                 circuit.getLieuRassemblement(),
                 circuit.getHeureDepart(),
                 circuit.getDateLimiteReservation(),
-
+                circuit.getImage(),
                 guideDTOs,
                 agenceDTO,
                 siteDTOs
         );
     }
 
-
+    // ── RequestDTO → Entity ────────────────────────────────────────────────
     public static Circuit toEntity(
             CircuitRequestDTO dto,
             List<Guide> guides,
@@ -81,15 +85,25 @@ public class CircuitMapper {
         if (dto == null) return null;
 
         Circuit circuit = new Circuit();
+
         circuit.setCircuitName(dto.circuitName());
+        circuit.setDescription(dto.description());
         circuit.setDateDebut(dto.dateDebut());
         circuit.setDateFin(dto.dateFin());
-        circuit.setDescription(dto.description());
-        circuit.setDuree(Duration.between((Temporal) dto.dateDebut(), (Temporal) dto.dateFin()));
+        circuit.setDateLimiteReservation(dto.dateLimiteReservation());
+        circuit.setLieuRassemblement(dto.lieuRassemblement());
+        circuit.setHeureDepart(dto.heureDepart());
+        circuit.setImage(dto.image());
+
+        // Calcul automatique de la durée en jours
+        if (dto.dateDebut() != null && dto.dateFin() != null) {
+            long diffJours = ChronoUnit.DAYS.between(dto.dateDebut(), dto.dateFin());
+            circuit.setDuree(Duration.ofDays(diffJours));
+        }
+
         circuit.setPrixIndividuel(dto.prixIndividuel());
-        circuit.setNombreMini(dto.nombreMini());
-        circuit.setNombreMax(dto.nombreMax());
         circuit.setNombreExact(dto.nombreExact());
+        circuit.setNombreRestant(dto.nombreExact()); // init = nombreExact
         circuit.setStatut(dto.statut());
         circuit.setTransport(dto.transport());
 

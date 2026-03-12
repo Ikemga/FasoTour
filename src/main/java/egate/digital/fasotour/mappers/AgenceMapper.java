@@ -13,16 +13,13 @@ public class AgenceMapper {
 
     private AgenceMapper() {}
 
-    /**
-     * dto to etity
-    */
+    // DTO → Entité
     public static Agence toEntity(
             AgenceRequestDTO dto,
             Set<Langue> langues,
             Set<Role> roles,
             Set<Guide> guides
     ) {
-
         Agence agence = new Agence();
 
         agence.setNomComplet(dto.nomComplet());
@@ -33,12 +30,10 @@ public class AgenceMapper {
         agence.setPays(dto.pays());
         agence.setPhoto(dto.photo());
         agence.setBio(dto.bio());
-
         agence.setSitWeb(dto.sitWeb());
         agence.setPageFacebook(dto.pageFacebook());
         agence.setNumeroAgrement(dto.numeroAgrement());
         agence.setDateCreation(dto.dateCreation());
-
         agence.setLangues(langues);
         agence.setRoles(roles);
         agence.setGuides(guides);
@@ -46,15 +41,15 @@ public class AgenceMapper {
         return agence;
     }
 
-    /**
-     * Etity to dto
-    */
+    // Entité → DTO
     public static AgenceResponseDTO toDTO(Agence agence) {
-
         return new AgenceResponseDTO(
                 agence.getId(),
                 agence.getNomComplet(),
                 agence.getMail(),
+                agence.getTelephone(),
+                agence.getActif(),
+                agence.getCreateAt(),
                 agence.getSitWeb(),
                 agence.getPageFacebook(),
                 agence.getNumeroAgrement(),

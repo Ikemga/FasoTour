@@ -76,7 +76,7 @@ public abstract class Utilisateur implements UserDetails {
             joinColumns = @JoinColumn(name = "utilisateur_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    @JsonIgnore
+
     private Set<Role> roles = new HashSet<>();
 
     //

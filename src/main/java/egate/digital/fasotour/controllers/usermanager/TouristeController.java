@@ -22,6 +22,19 @@ public class TouristeController {
         return ResponseEntity.ok(authService.getAllTouristes());
     }
 
+    @GetMapping("/order/name/desc")
+    public ResponseEntity<List<TouristeResponseDTO>> getAllTouristes() {
+        return ResponseEntity.ok(authService.getAllTouristesAlphabetically());
+    }
+
+    // GET - Touriste par mail
+    @GetMapping("/mail/{mail}")
+    public ResponseEntity<TouristeResponseDTO> getTouristeByMail(@PathVariable String mail) {
+        return authService.getTouristeByMail(mail)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<TouristeResponseDTO> getById(@PathVariable Long id) {
         return ResponseEntity.ok(authService.getTouristeById(id));

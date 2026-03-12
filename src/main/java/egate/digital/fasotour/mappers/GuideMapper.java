@@ -21,7 +21,6 @@ public class GuideMapper {
             Set<Role> roles,
             Set<Agence> agences
     ) {
-
         Guide guide = new Guide();
 
         guide.setNomComplet(dto.nomComplet());
@@ -42,24 +41,26 @@ public class GuideMapper {
         return guide;
     }
 
-
-
     /**
      * Entity → ResponseDTO
      */
     public static GuideResponseDTO toDTO(Guide guide) {
 
-        Set<String> langueNames = guide.getLangues()
-                .stream()
-                .map(Langue::getLangues)
-                .collect(Collectors.toSet());
+        Set<String> langueNames = guide.getLangues() == null ? Set.of() :
+                guide.getLangues()
+                        .stream()
+                        .map(Langue::getLangues)
+                        .collect(Collectors.toSet());
 
         return new GuideResponseDTO(
                 guide.getId(),
                 guide.getNomComplet(),
                 guide.getMail(),
+                guide.getTelephone(),
                 guide.getExperience(),
                 guide.getPreferenceTouristique(),
+                guide.getActif(),
+                guide.getCreateAt(),
                 langueNames
         );
     }

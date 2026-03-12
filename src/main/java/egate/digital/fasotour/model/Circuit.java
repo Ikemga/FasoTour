@@ -1,6 +1,7 @@
 package egate.digital.fasotour.model;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
@@ -26,21 +27,24 @@ public class Circuit {
     private String circuitName;
 
     @Column(name = "dateDebut")
-    private Date dateDebut;
-    private Date dateFin;
+    private LocalDate dateDebut;
+    private LocalDate dateFin;
     private String description;
+
+    @Convert(converter = DurationConverter.class)
+    @Column(name = "duree")
     private Duration duree;
     private Double prixIndividuel;
-    private int nombreMini;
-    private int nombreMax;
-    private int nombreExact;
+    private Integer nombreExact;
+    private Integer nombreRestant;
     private LocalDateTime createdAt;
     private String statut;
     private boolean transport = false;
     //Add attribut
     private String lieuRassemblement;
     private LocalTime heureDepart;
-    private LocalDateTime dateLimiteReservation;
+    private LocalDate dateLimiteReservation;
+    private String image;
 
     @OneToMany(mappedBy = "circuit", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore

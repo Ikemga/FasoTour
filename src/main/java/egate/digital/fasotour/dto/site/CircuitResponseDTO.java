@@ -1,6 +1,7 @@
 package egate.digital.fasotour.dto.site;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Date;
@@ -13,14 +14,13 @@ public record CircuitResponseDTO(
 
     Long id,
     String circuitName,
-    Date dateDebut,
-    Date dateFin,
+    LocalDate dateDebut,
+    LocalDate dateFin,
     String description,
-    Duration duree,
+    Long duree,
     Double prixIndividuel,
-    int nombreMini,
-    int nombreMax,
-    int nombreExact,
+    Integer nombreExact,
+    Integer nombreRestant,
     LocalDateTime createdAt,
     String statut,
     boolean transport,
@@ -28,7 +28,8 @@ public record CircuitResponseDTO(
     //Add attribut
     String lieuRassemblement,
     LocalTime heureDepart,
-    LocalDateTime dateLimiteReservation,
+    LocalDate dateLimiteReservation,
+    String  image,
 
     List<GuideSimpleDTO> guide,
     AgenceSimpleDTO agence,

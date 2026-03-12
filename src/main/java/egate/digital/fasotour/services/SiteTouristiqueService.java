@@ -66,6 +66,13 @@ public class SiteTouristiqueService {
                 .collect(Collectors.toList());
     }
 
+    public List<SiteTouristiqueResponseDTO> getAllAlphabetical() {
+        return siteTouristiqueRepository.findAllOrderByNomAsc()
+                .stream()
+                .map(SiteTouristiqueMapper::toResponseDTO)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public SiteTouristiqueResponseDTO create(SiteTouristiqueRequestDTO dto) {
         validerSiteTouristique(dto);

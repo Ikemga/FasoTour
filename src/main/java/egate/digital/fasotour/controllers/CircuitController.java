@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/v1/circuits")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 public class CircuitController {
 
     private final CircuitService circuitService;
@@ -66,16 +67,31 @@ public class CircuitController {
         return ResponseEntity.ok(circuitService.findPage(pageable));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<CircuitResponseDTO>> searchByName(
+            @RequestParam(defaultValue = "") String name) {
+        return ResponseEntity.ok(circuitService.searchByName(name));
+    }
+
     @GetMapping("/name/{circuitName}")
     public ResponseEntity<CircuitResponseDTO> getCircuitByName(@PathVariable String circuitName) {
         return ResponseEntity.ok(circuitService.getByCircuit(circuitName));
     }
 
+    /*
     @PostMapping
-    public ResponseEntity<CircuitResponseDTO> createCircuit(@Valid @RequestBody CircuitRequestDTO dto) {
+    public ResponseEntity<CircuitResponseDTO> create(@Valid @RequestBody CircuitRequestDTO dto) {
         CircuitResponseDTO created = circuitService.createCircuit(dto);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
+    */
+    @PostMapping
+    public ResponseEntity<CircuitResponseDTO> createCircuit(
+            @Valid @RequestBody CircuitRequestDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(circuitService.createCircuit(dto));
+    }
+
 
     @PostMapping("/batch")
     public ResponseEntity<List<CircuitResponseDTO>> createBatch(@RequestBody List<CircuitRequestDTO> dtos) {

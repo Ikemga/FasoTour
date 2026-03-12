@@ -77,9 +77,9 @@ public class SecurityConfigSpring {
                         // Circuits
                         .requestMatchers(HttpMethod.GET,"/v1/circuits/**").permitAll()
                         .requestMatchers(HttpMethod.POST,"/v1/circuits/**").hasAnyAuthority("ADMIN","AGENCE")
-                        .requestMatchers(HttpMethod.PUT,"/v1/circuits/**").hasAuthority("AGENCE")
-                        .requestMatchers(HttpMethod.DELETE,"/v1/circuits/**").hasAuthority("AGENCE")
-                        .requestMatchers(HttpMethod.PATCH,"/v1/circuits/**").hasAuthority("AGENCE")
+                        .requestMatchers(HttpMethod.PUT,"/v1/circuits/**").hasAnyAuthority("ADMIN","AGENCE")
+                        .requestMatchers(HttpMethod.DELETE,"/v1/circuits/**").hasAnyAuthority("ADMIN","AGENCE")
+                        .requestMatchers(HttpMethod.PATCH,"/v1/circuits/**").hasAnyAuthority("ADMIN","AGENCE")
 
                         // Reservations
                         .requestMatchers("/v1/reservations/**")
@@ -95,7 +95,7 @@ public class SecurityConfigSpring {
 
                         // Touristes
                         .requestMatchers(HttpMethod.GET,"/v1/touristes/**").hasAnyAuthority("ADMIN","TOURISTE")
-                        .requestMatchers(HttpMethod.PUT,"/v1/touristes/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT,"/v1/touristes/**").hasAnyAuthority("ADMIN","TOURISTE")
                         .requestMatchers(HttpMethod.DELETE,"/v1/touristes/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.PATCH,"/v1/touristes/**").hasAuthority("ADMIN")
 

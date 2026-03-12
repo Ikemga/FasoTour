@@ -26,6 +26,7 @@ import egate.digital.fasotour.services.valide.ValidateService;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -173,6 +174,21 @@ public class AuthService {
                 .collect(Collectors.toList());
     }
 
+    // Récupérer tous les touristes par ordre alphabétique
+    @Transactional
+    public List<TouristeResponseDTO> getAllTouristesAlphabetically() {
+        return touristeRepository.findAllOrderedAlphabetically()
+                .stream()
+                .map(TouristeMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Récupérer un touriste par mail
+    public Optional<TouristeResponseDTO> getTouristeByMail(String mail) {
+        return touristeRepository.findByMail(mail)
+                .map(TouristeMapper::toDTO);
+    }
+
     public TouristeResponseDTO getTouristeById(Long id) {
         return touristeRepository.findById(id)
                 .map(TouristeMapper::toDTO)
@@ -228,6 +244,14 @@ public class AuthService {
                 .orElseThrow(() -> new EntityNotFoundException("Guide introuvable : " + id));
     }
 
+
+    public List<GuideResponseDTO> getAllGuidesorderAlp() {
+        return guideRepository.findAllOrderByNomCompletAsc()
+                .stream()
+                .map(GuideMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public GuideResponseDTO updateGuide(Long id, GuideRequestDTO dto) {
         Guide guide = guideRepository.findById(id)
@@ -267,6 +291,15 @@ public class AuthService {
     // CRUD Agence
     public List<AgenceResponseDTO> getAllAgences() {
         return agenceRepository.findAll()
+                .stream()
+                .map(AgenceMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    // GET all (ordre alphabétique)
+    @Transactional
+    public List<AgenceResponseDTO> getAllAgencesorder() {
+        return agenceRepository.findAllOrderedAlphabetically()
                 .stream()
                 .map(AgenceMapper::toDTO)
                 .collect(Collectors.toList());

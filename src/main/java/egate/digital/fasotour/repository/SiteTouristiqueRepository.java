@@ -15,6 +15,9 @@ public interface SiteTouristiqueRepository extends JpaRepository<SiteTouristique
     boolean existsByNom(String nom);
     List<SiteTouristique> findAllByOrderByCreatedAtDesc();
 
+    @Query("SELECT s FROM SiteTouristique s ORDER BY LOWER(s.nom) ASC")
+    List<SiteTouristique> findAllOrderByNomAsc();
+
     @Query("""
     SELECT DISTINCT s FROM SiteTouristique s
     LEFT JOIN s.categories c
