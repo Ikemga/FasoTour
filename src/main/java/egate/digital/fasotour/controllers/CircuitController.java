@@ -80,14 +80,14 @@ public class CircuitController {
 
     /*
     @PostMapping
-    public ResponseEntity<CircuitResponseDTO> create(@Valid @RequestBody CircuitRequestDTO dto) {
+    public ResponseEntity<CircuitResponseDTO> createCircuit(@Valid @RequestBody CircuitRequestDTO dto) {
         CircuitResponseDTO created = circuitService.createCircuit(dto);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
     */
     @PostMapping
     public ResponseEntity<CircuitResponseDTO> createCircuit(
-            @Valid @RequestBody CircuitRequestDTO dto) {
+            @RequestBody CircuitRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(circuitService.createCircuit(dto));
     }

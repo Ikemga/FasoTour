@@ -3,7 +3,9 @@ package egate.digital.fasotour.services;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,6 +23,7 @@ import egate.digital.fasotour.mappers.CircuitMapper;
 import egate.digital.fasotour.model.*;
 import egate.digital.fasotour.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -98,6 +101,7 @@ public class CircuitService {
                 .map(CircuitMapper::toResponseDTO)
                 .collect(Collectors.toList());
     }
+
     /*
     @Transactional
     public CircuitResponseDTO createCircuit(CircuitRequestDTO dto) {
@@ -120,38 +124,23 @@ public class CircuitService {
         Circuit circuit = CircuitMapper.toEntity(dto, guides, agence, sites);
         return CircuitMapper.toResponseDTO(circuitRepository.save(circuit));
     }
-
     */
+
+
 
     @Transactional
     public CircuitResponseDTO createCircuit(CircuitRequestDTO dto) {
 
-        // ── Validation métier des dates ──────────────────────────────────────
-        LocalDate today = LocalDate.now();
+        validerCircuit(dto);
 
-        if (dto.dateDebut().isBefore(today))
-            throw new IllegalArgumentException(
-                    "La date de début doit être supérieure ou égale à aujourd'hui.");
-
-        if (!dto.dateFin().isAfter(dto.dateDebut()))
-            throw new IllegalArgumentException(
-                    "La date de fin doit être supérieure à la date de début.");
-
-        if (!dto.dateLimiteReservation().isBefore(dto.dateDebut()))
-            throw new IllegalArgumentException(
-                    "La date limite de réservation doit être inférieure à la date de début.");
-
-        // ── Unicité du nom ───────────────────────────────────────────────────
-        if (circuitRepository.existsByCircuitName(dto.circuitName()))
-            throw new EntityNotFoundException("Ce circuit existe déjà !");
-
-        // ── Résolution des entités ───────────────────────────────────────────
         List<Guide> guides = guideRepository.findAllById(dto.guideIds());
         if (guides.isEmpty())
-            throw new RuntimeException("Aucun guide trouvé pour les IDs : " + dto.guideIds());
+            throw new IllegalArgumentException(
+                    "Aucun guide trouvé pour les IDs : " + dto.guideIds());
 
         Agence agence = agenceRepository.findById(dto.agenceId())
-                .orElseThrow(() -> new RuntimeException("Agence non trouvée : " + dto.agenceId()));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Agence non trouvée : " + dto.agenceId()));
 
         Set<SiteTouristique> sites = siteRepository.findAllById(dto.siteIds())
                 .stream().collect(Collectors.toSet());
@@ -159,6 +148,7 @@ public class CircuitService {
         Circuit circuit = CircuitMapper.toEntity(dto, guides, agence, sites);
         return CircuitMapper.toResponseDTO(circuitRepository.save(circuit));
     }
+
 
     @Transactional
     public List<CircuitResponseDTO> createBatch(List<CircuitRequestDTO> dtos) {
@@ -260,6 +250,54 @@ public class CircuitService {
                 .collect(Collectors.toList());
     }
 
+
+    // Validatio
+
+    private void validerCircuit(CircuitRequestDTO dto) {
+
+        // ── Champs texte obligatoires ────────────────────────────────────────
+        Map<String, String> textFields = new LinkedHashMap<>();
+        textFields.put("circuitName",  dto.circuitName());
+        textFields.put("statut",       dto.statut());
+
+        textFields.forEach((champ, valeur) -> {
+            if (!StringUtils.hasText(valeur))
+                throw new IllegalArgumentException(
+                        "Le champ « " + champ + " » ne peut pas être vide !");
+        });
+
+
+        // ── Dates debut obligatoires ───────────────────────────────────────────────
+
+        LocalDate today = LocalDate.now();
+        if (dto.dateDebut() == null || dto.dateDebut().isBefore(today))
+            throw new IllegalArgumentException("La date de début est obligatoire et doit être supérieure ou égale à aujourd'hui");
+
+
+        // ── obligatoires et Cohérence de dates de Fin ─────────────────────────────────────────────
+        if (dto.dateFin() == null || !dto.dateFin().isAfter(dto.dateDebut()))
+            throw new IllegalArgumentException("La date de fin est obligatoire et doit être supérieure à la date de début.");
+
+
+        if (dto.dateLimiteReservation() == null || !dto.dateLimiteReservation().isBefore(dto.dateDebut()))
+            throw new IllegalArgumentException("La date limite de réservation est obligatoire et doit être inférieure à la date de début.");
+
+
+        // ── Prix ─────────────────────────────────────────────────────────────
+        if (dto.prixIndividuel() == null || dto.prixIndividuel() < 0)
+            throw new IllegalArgumentException("Le prix est obligatoire et ne peut pas être négatif.");
+
+        // ── Sites ─────────────────────────────────────────────────────────────
+        if (dto.siteIds() == null || dto.siteIds().isEmpty())
+            throw new IllegalArgumentException("Veuillez sélectionner au moins 2 sites.");
+
+        if (dto.siteIds().size() < 2)
+            throw new IllegalArgumentException("Le circuit doit contenir au moins 2 sites.");
+
+        // ── Unicité du nom ───────────────────────────────────────────────────
+        if (circuitRepository.existsByCircuitName(dto.circuitName()))
+            throw new IllegalStateException("Un circuit avec ce nom existe déjà !");
+    }
     @Transactional(readOnly = true)
     public List<CircuitResponseDTO> getByStatut(String statut) {
         return circuitRepository.findByStatut(statut)

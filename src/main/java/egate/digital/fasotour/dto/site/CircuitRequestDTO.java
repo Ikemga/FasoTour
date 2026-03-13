@@ -11,7 +11,7 @@ public record CircuitRequestDTO(
         @NotBlank(message = "Le nom du circuit est obligatoire.")
         String circuitName,
 
-        @NotBlank(message = "La description est obligatoire.")
+
         String description,
 
         @NotNull(message = "La date de début est obligatoire.")
