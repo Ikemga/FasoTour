@@ -10,14 +10,15 @@ public record SiteTouristiqueResponseDTO(
         String description,
         String region,
         String image,
-        String noteMoyenne,
+        Double noteMoyenne,
         String video,
         String fichier,
         LocalDateTime createedAt,
         String localisation,
 
         //Add attribut
-        LocalTime horaire,
+        LocalTime heureOuverture,
+        LocalTime heureFermeture,
         Double tarif,
         String statut,
 

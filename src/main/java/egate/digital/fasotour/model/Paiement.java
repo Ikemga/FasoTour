@@ -1,6 +1,6 @@
 package egate.digital.fasotour.model;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -15,9 +15,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * @author Charles
- */
 @Entity
 @Data
 @AllArgsConstructor
@@ -29,11 +26,11 @@ public class Paiement {
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
 
-    private Date datePaiement;
+    private LocalDate datePaiement = LocalDate.now();
 
     private Double montant;
 
-    private String reference;
+    private String referencePaie;
 
     private String statut;
 

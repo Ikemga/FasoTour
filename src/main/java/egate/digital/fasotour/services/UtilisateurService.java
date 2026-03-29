@@ -2,10 +2,14 @@ package egate.digital.fasotour.services;
 
 import egate.digital.fasotour.dto.UtilisateurDTO;
 import egate.digital.fasotour.mappers.UtilisateurMapper;
+import egate.digital.fasotour.model.Utilisateur;
 import egate.digital.fasotour.repository.UtilisateurRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -69,5 +73,19 @@ public class UtilisateurService {
                 .collect(Collectors.toList());
     }
 
+    // Juste pour récupérer l'objet sans supprimer
+    public Optional<Utilisateur> findById(Long id) {
+        return utilisateurRepository.findById(id);
+    }
+
+    // Delete by id
+    @Transactional
+    public void remove(Long id) {
+        if (!utilisateurRepository.existsById(id)) {
+            throw new EntityNotFoundException(
+                    "Utilisateur introuvable avec l'id : " + id);
+        }
+        utilisateurRepository.deleteById(id);
+    }
 
 }

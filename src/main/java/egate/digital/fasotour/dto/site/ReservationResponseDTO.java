@@ -1,22 +1,29 @@
 package egate.digital.fasotour.dto.site;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 public record ReservationResponseDTO(
 
         Long id,
         int nombrePersonne,
-        Double prixReservation,
-        LocalDate dateResevation,
+
+        Double prixCircuit,
+        Double fraisReservation,
+        Double montantTotal,
+
+        String reference,
         String commentaire,
         String statut,
-        Date dateLimitePaiement,
+
+        LocalDate dateResevation,
+        LocalDate dateLimitePaiement,
 
         Long paiementId,
+        String referencePaie,
         Long circuitId,
-        String circuitNom,
+        String circuitName,
         Long touristeId,
-        String touristeNom
+        String nomComplet
 
 ) {}
+

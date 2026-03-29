@@ -2,40 +2,44 @@ package egate.digital.fasotour.mappers;
 
 import egate.digital.fasotour.dto.paie.FactureDTO;
 import egate.digital.fasotour.dto.paie.PaiementResponseDTO;
-import egate.digital.fasotour.model.*;
-import egate.digital.fasotour.dto.paie.*;
+import egate.digital.fasotour.model.Facture;
+import egate.digital.fasotour.model.Paiement;
+import egate.digital.fasotour.model.Reservation;
 
-public class PaiementMapper {
+public final class PaiementMapper {
 
     private PaiementMapper() {}
 
     public static PaiementResponseDTO toDTO(Paiement paiement) {
         if (paiement == null) return null;
 
-        Facture facture = paiement.getFacture();
-        FactureDTO factureDTO = null;
-        if (facture != null) {
-            factureDTO = new FactureDTO(
-                    facture.getId(),
-                    facture.getReference(),
-                    facture.getDateEmission(),
-                    facture.getMontatTotal(),
-                    facture.getMontantPaie(),
-                    facture.getMontantRestant()
-            );
-        }
-
-        Long reservationId = paiement.getReservation() != null ? paiement.getReservation().getId() : null;
-
         return new PaiementResponseDTO(
                 paiement.getId(),
                 paiement.getMontant(),
                 paiement.getMontantPaye(),
                 paiement.getDatePaiement(),
-                paiement.getReference(),
+                paiement.getReferencePaie(),
                 paiement.getStatut(),
-                reservationId,
-                factureDTO
+                mapReservationId(paiement.getReservation()),
+                mapFacture(paiement.getFacture())
+        );
+    }
+
+
+    private static Long mapReservationId(Reservation reservation) {
+        return reservation != null ? reservation.getId() : null;
+    }
+
+    private static FactureDTO mapFacture(Facture facture) {
+        if (facture == null) return null;
+
+        return new FactureDTO(
+                facture.getId(),
+                facture.getReference(),
+                facture.getDateEmission(),
+                facture.getMontantTotal(),
+                facture.getMontantPaie(),
+                facture.getMontantRestant()
         );
     }
 }

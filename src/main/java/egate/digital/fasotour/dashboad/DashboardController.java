@@ -1,36 +1,23 @@
 package egate.digital.fasotour.dashboad;
 
-import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
-@AllArgsConstructor
 @RestController
-@RequestMapping("v1/dashboard")
+@RequestMapping("/v1/dashboard")
+@RequiredArgsConstructor
 public class DashboardController {
 
     private final DashboardService dashboardService;
+    private final UserDashboardService userDashboardService;
 
-    @GetMapping("sites/count")
-    public ResponseEntity<Long> countSites() {
-        return ResponseEntity.ok(dashboardService.getCount());
+    @GetMapping("/all")
+    public DashboardDTO getDashboard() {
+        return dashboardService.getDashboard();
     }
 
-    @GetMapping("circuits/actifs")
-    public ResponseEntity<Long> getCircuitsActifs() {
-        return ResponseEntity.ok(dashboardService.getCountByStatus());
-    }
-
-    @GetMapping("reservations/mois")
-    public ResponseEntity<Long> getReservationsMoisCourant() {
-        return ResponseEntity.ok(dashboardService.getCountReservationByMonth());
-    }
-
-    @GetMapping("utilisateurs/countby/role")
-    public ResponseEntity<Long> getUsersCountByRole(@RequestParam String role) {
-        return ResponseEntity.ok(dashboardService.getUserCountByRole(role));
+    @GetMapping("/utilisateur")
+    public UserDashboardStatDTO getStats() {
+        return userDashboardService.getStats();
     }
 }

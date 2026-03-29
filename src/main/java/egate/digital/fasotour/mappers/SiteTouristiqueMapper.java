@@ -1,5 +1,6 @@
 package egate.digital.fasotour.mappers;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,7 +40,8 @@ public class SiteTouristiqueMapper {
                 site.getCreatedAt(),
                 site.getLocalisation(),
                 //Add Attribut
-                site.getHoraire(),
+                site.getHeureOuverture(),
+                site.getHeureFermeture(),
                 site.getTarif(),
                 site.getStatut(),
 
@@ -59,12 +61,13 @@ public class SiteTouristiqueMapper {
         site.setVideo(dto.video());
         site.setFichier(dto.fichier());
         site.setLocalisation(dto.localisation());
+
         //Add Attribut
-        site.setHoraire(dto.horaire());
+
+        site.setHeureOuverture(dto.heureOuverture());
+        site.setHeureOuverture(dto.heureFermeture());
         site.setTarif(dto.tarif());
         site.setStatut(dto.statut());
-
-
 
         return site;
     }

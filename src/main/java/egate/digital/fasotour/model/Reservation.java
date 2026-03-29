@@ -1,11 +1,9 @@
 package egate.digital.fasotour.model;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -31,18 +29,18 @@ public class Reservation {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
-
     private int nombrePersonne;
 
-    private Double prixReservation;
-
-    private LocalDate dateResevation;
+    private Double prixCircuit;
+    private Double fraisReservation;
+    private Double montantTotal;
 
     private String commentaire;
-
+    private String reference;
     private String statut;
 
-    private Date dateLimitePaiement;
+    private LocalDate dateResevation = LocalDate.now();
+    private LocalDate dateLimitePaiement;
 
     /**
      * Relatin qvec paiement

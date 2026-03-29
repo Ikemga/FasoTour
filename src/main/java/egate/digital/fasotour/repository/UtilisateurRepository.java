@@ -22,7 +22,6 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur, Long> 
     """)
     long countByRole(@Param("role") String role);
 
-
     @Query("""
     SELECT DISTINCT u FROM Utilisateur u
     LEFT JOIN u.roles r
@@ -52,4 +51,6 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur, Long> 
     // Z → A
     @Query("SELECT u FROM Utilisateur u ORDER BY u.nomComplet DESC")
     List<Utilisateur> findUsersByNameDesc();
+
+    long countByActifTrue();
 }

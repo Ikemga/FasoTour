@@ -4,15 +4,23 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import egate.digital.fasotour.dto.StatiqueDTO;
+import egate.digital.fasotour.mappers.ReservationMapper;
+import egate.digital.fasotour.util.SequenceRefService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import egate.digital.fasotour.dto.site.*;
-import egate.digital.fasotour.model.*;
-import egate.digital.fasotour.repository.*;
+import egate.digital.fasotour.dto.site.ReservationRequestDTO;
+import egate.digital.fasotour.dto.site.ReservationResponseDTO;
+import egate.digital.fasotour.model.Circuit;
+import egate.digital.fasotour.model.Paiement;
+import egate.digital.fasotour.model.Reservation;
+import egate.digital.fasotour.model.Touriste;
+import egate.digital.fasotour.repository.CircuitRepository;
+import egate.digital.fasotour.repository.PaiementRepository;
+import egate.digital.fasotour.repository.ReservationRepository;
+import egate.digital.fasotour.repository.TouristeRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -24,6 +32,7 @@ public class ReservationService {
     private final CircuitRepository circuitRepository;
     private final TouristeRepository touristeRepository;
     private final PaiementRepository paiementRepository;
+    private final SequenceRefService sequenceRefService;
 
     public ReservationResponseDTO create(ReservationRequestDTO dto) {
 
@@ -33,41 +42,28 @@ public class ReservationService {
         Touriste touriste = touristeRepository.findById(dto.touristeId())
                 .orElseThrow(() -> new RuntimeException("Touriste non trouvé"));
 
-        Reservation reservation = new Reservation();
-        mapRequestToEntity(dto, reservation);
-
-        reservation.setCircuit(circuit);
-        reservation.setTouriste(touriste);
-
+        Paiement paiement = null;
         if (dto.paiementId() != null) {
-            Paiement paiement = paiementRepository.findById(dto.paiementId())
+            paiement = paiementRepository.findById(dto.paiementId())
                     .orElseThrow(() -> new RuntimeException("Paiement non trouvé"));
-            reservation.setPaiement(paiement);
         }
 
-        return mapToDTO(reservationRepository.save(reservation));
-    }
+        // Vérification du nombre de personnes
+        if (dto.nombrePersonne() <= 0 || dto.nombrePersonne() > circuit.getNombreRestant()) {
+            throw new RuntimeException("Nombre de personnes invalide : doit être entre 1 et " + circuit.getNombreRestant());
+        }
 
-    @Transactional(readOnly = true)
-    public List<ReservationResponseDTO> getAll() {
-        return reservationRepository.findAll()
-                .stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
-    }
+        // Création de la réservation
+        Reservation reservation = ReservationMapper.toEntity(dto, paiement, circuit, touriste);
 
-    @Transactional(readOnly = true)
-    public Page<ReservationResponseDTO> getAllPaginated(Pageable pageable) {
+        // Génération de référence
+        reservation.setReference(sequenceRefService.nextRef("RES"));
 
-        return reservationRepository.findAll(pageable)
-                .map(this::mapToDTO);
-    }
+        // Déduction du nombre de places
+        circuit.setNombreRestant(circuit.getNombreRestant() - dto.nombrePersonne());
+        circuitRepository.save(circuit);
 
-    @Transactional(readOnly = true)
-    public ReservationResponseDTO getById(Long id) {
-        return reservationRepository.findById(id)
-                .map(this::mapToDTO)
-                .orElseThrow(() -> new RuntimeException("Réservation non trouvée"));
+        return ReservationMapper.toDTO(reservationRepository.save(reservation));
     }
 
     public ReservationResponseDTO update(Long id, ReservationRequestDTO dto) {
@@ -75,41 +71,80 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Réservation non trouvée"));
 
-        mapRequestToEntity(dto, reservation);
+        Circuit circuit = reservation.getCircuit();
+        Touriste touriste = reservation.getTouriste();
+        Paiement paiement = reservation.getPaiement();
 
-        if (dto.circuitId() != null) {
-            Circuit circuit = circuitRepository.findById(dto.circuitId())
+        if (dto.circuitId() != null && !dto.circuitId().equals(circuit.getId())) {
+            circuit = circuitRepository.findById(dto.circuitId())
                     .orElseThrow(() -> new RuntimeException("Circuit non trouvé"));
-            reservation.setCircuit(circuit);
         }
 
-        if (dto.touristeId() != null) {
-            Touriste touriste = touristeRepository.findById(dto.touristeId())
+        if (dto.touristeId() != null && !dto.touristeId().equals(touriste.getId())) {
+            touriste = touristeRepository.findById(dto.touristeId())
                     .orElseThrow(() -> new RuntimeException("Touriste non trouvé"));
-            reservation.setTouriste(touriste);
         }
 
         if (dto.paiementId() != null) {
-            Paiement paiement = paiementRepository.findById(dto.paiementId())
+            paiement = paiementRepository.findById(dto.paiementId())
                     .orElseThrow(() -> new RuntimeException("Paiement non trouvé"));
-            reservation.setPaiement(paiement);
         }
 
-        return mapToDTO(reservationRepository.save(reservation));
+        // Mise à jour via mapper (recalcul des prix)
+        Reservation updated = ReservationMapper.toEntity(dto, paiement, circuit, touriste);
+        reservation.setNombrePersonne(updated.getNombrePersonne());
+        reservation.setPrixCircuit(updated.getPrixCircuit());
+        reservation.setFraisReservation(updated.getFraisReservation());
+        reservation.setMontantTotal(updated.getMontantTotal());
+        reservation.setCommentaire(updated.getCommentaire());
+        reservation.setStatut(updated.getStatut());
+        reservation.setDateLimitePaiement(updated.getDateLimitePaiement());
+        reservation.setCircuit(circuit);
+        reservation.setTouriste(touriste);
+        reservation.setPaiement(paiement);
+
+        return ReservationMapper.toDTO(reservationRepository.save(reservation));
     }
 
     public void delete(Long id) {
-        if (!reservationRepository.existsById(id)) {
-            throw new RuntimeException("Réservation non trouvée");
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Réservation non trouvée"));
+
+        Circuit circuit = reservation.getCircuit();
+        if (circuit != null) {
+            circuit.setNombreRestant(circuit.getNombreRestant() + reservation.getNombrePersonne());
+            circuitRepository.save(circuit);
         }
-        reservationRepository.deleteById(id);
+
+        reservationRepository.delete(reservation);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReservationResponseDTO> getAll() {
+        return reservationRepository.findAll()
+                .stream()
+                .map(ReservationMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ReservationResponseDTO> getAllPaginated(Pageable pageable) {
+        return reservationRepository.findAll(pageable)
+                .map(ReservationMapper::toDTO);
+    }
+
+    @Transactional(readOnly = true)
+    public ReservationResponseDTO getById(Long id) {
+        return reservationRepository.findById(id)
+                .map(ReservationMapper::toDTO)
+                .orElseThrow(() -> new RuntimeException("Réservation non trouvée"));
     }
 
     @Transactional(readOnly = true)
     public List<ReservationResponseDTO> getByStatut(String statut) {
         return reservationRepository.findByStatut(statut)
                 .stream()
-                .map(this::mapToDTO)
+                .map(ReservationMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
@@ -117,42 +152,7 @@ public class ReservationService {
     public List<ReservationResponseDTO> getByDate(LocalDate date) {
         return reservationRepository.findByDateResevation(date)
                 .stream()
-                .map(this::mapToDTO)
+                .map(ReservationMapper::toDTO)
                 .collect(Collectors.toList());
     }
-
-    private void mapRequestToEntity(ReservationRequestDTO dto, Reservation r) {
-        r.setNombrePersonne(dto.nombrePersonne());
-        r.setPrixReservation(dto.prixReservation());
-        r.setDateResevation(dto.dateResevation());
-        r.setCommentaire(dto.commentaire());
-        r.setStatut(dto.statut());
-        r.setDateLimitePaiement(dto.dateLimitePaiement());
-    }
-
-    private ReservationResponseDTO mapToDTO(Reservation r) {
-        return new ReservationResponseDTO(
-                r.getId(),
-                r.getNombrePersonne(),
-                r.getPrixReservation(),
-                r.getDateResevation(),
-                r.getCommentaire(),
-                r.getStatut(),
-                r.getDateLimitePaiement(),
-                r.getPaiement() != null ? r.getPaiement().getId() : null,
-                r.getCircuit() != null ? r.getCircuit().getId() : null,
-                r.getCircuit() != null ? r.getCircuit().getCircuitName() : null,
-                r.getTouriste() != null ? r.getTouriste().getId() : null,
-                r.getTouriste() != null ? r.getTouriste().getNomComplet() : null
-        );
-    }
-
-    // Count By moth
-
-/*
-    @Transactional(readOnly = true)
-    public List<StatiqueDTO> getReservationStatsByCircuit() {
-        return reservationRepository.countReservationsByCircuit();
-    }
-    */
 }

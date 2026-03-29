@@ -1,6 +1,7 @@
 package egate.digital.fasotour.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -40,14 +41,14 @@ Guide extends Utilisateur {
    /**
     * Relation  avec circuit
    */
-   @OneToMany(mappedBy="guides", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+   @OneToMany(mappedBy="guides")
    @JsonIgnore
-   private List<Circuit> circuit =  new ArrayList<>();
+   private Set<Circuit> circuit =  new HashSet<>();
 
     /**
     * Relation  avec Agence
    */
     @ManyToMany(mappedBy = "guides")
     @JsonIgnore
-    private Set<Agence> agences;
+    private Set<Agence> agences = new HashSet<>();
 }

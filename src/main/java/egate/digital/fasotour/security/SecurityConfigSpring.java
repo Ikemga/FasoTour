@@ -43,6 +43,7 @@ public class SecurityConfigSpring {
 
                 .authorizeHttpRequests(auth -> auth
 
+                        .requestMatchers("/uploads/**").permitAll()
                         // AUTH
                         .requestMatchers(HttpMethod.POST,"/v1/auth/**").permitAll()
                         .requestMatchers("/v1/auth/activation").permitAll()
@@ -82,8 +83,7 @@ public class SecurityConfigSpring {
                         .requestMatchers(HttpMethod.PATCH,"/v1/circuits/**").hasAnyAuthority("ADMIN","AGENCE")
 
                         // Reservations
-                        .requestMatchers("/v1/reservations/**")
-                        .hasAnyAuthority("ADMIN","TOURISTE","GUIDE","AGENCE")
+                        .requestMatchers("/v1/reservations/**").hasAnyAuthority("ADMIN","TOURISTE","GUIDE","AGENCE")
 
                         // Paiements
                         .requestMatchers("/v1/paiements/**")

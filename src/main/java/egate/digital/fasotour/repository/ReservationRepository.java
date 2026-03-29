@@ -22,16 +22,4 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>{
     long countByMoisEtAnnee(@Param("mois") int mois,
                             @Param("annee") int annee);
 
-/*
-    @Query("""
-        SELECT new egate.digital.fasotour.dto.site.ReservationStatsDTO(
-            r.circuit.id,
-            r.circuit.circuitName,
-            COUNT(r)
-        )
-        FROM Reservation r
-        GROUP BY r.circuit.id, r.circuit.circuitName
-    """)
-    List<StatiqueDTO> countReservationsByCircuit();
-    */
 }

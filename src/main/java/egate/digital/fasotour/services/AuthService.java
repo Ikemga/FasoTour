@@ -25,6 +25,7 @@ import egate.digital.fasotour.security.jwt.JwtService;
 import egate.digital.fasotour.services.valide.ValidateService;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -218,6 +219,8 @@ public class AuthService {
     public void deleteTouriste(Long id) {
         if (!touristeRepository.existsById(id))
             throw new EntityNotFoundException("Touriste introuvable : " + id);
+
+        touristeRepository.deleteReservationsByTouristeId(id);
         touristeRepository.deleteById(id);
     }
 
@@ -243,7 +246,6 @@ public class AuthService {
                 .map(GuideMapper::toDTO)
                 .orElseThrow(() -> new EntityNotFoundException("Guide introuvable : " + id));
     }
-
 
     public List<GuideResponseDTO> getAllGuidesorderAlp() {
         return guideRepository.findAllOrderByNomCompletAsc()
@@ -275,9 +277,16 @@ public class AuthService {
 
     @Transactional
     public void deleteGuide(Long id) {
-        if (!guideRepository.existsById(id))
-            throw new EntityNotFoundException("Guide introuvable : " + id);
-        guideRepository.deleteById(id);
+        Guide guide = guideRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Guide introuvable : " + id));
+
+        guideRepository.deleteCircuitGuideByGuideId(id);
+
+        // 2. Nettoyer agence_guide directement en base
+        guideRepository.deleteAgenceGuideByGuideId(id);
+
+        // 3. Supprimer proprement
+        guideRepository.delete(guide);
     }
 
     @Transactional
@@ -338,6 +347,11 @@ public class AuthService {
     public void deleteAgence(Long id) {
         if (!agenceRepository.existsById(id))
             throw new EntityNotFoundException("Agence introuvable : " + id);
+
+        agenceRepository.deleteAgenceGuideByAgenceId(id);
+
+        agenceRepository.deleteCircuitGuideByAgenceId(id);
+
         agenceRepository.deleteById(id);
     }
 
@@ -356,7 +370,7 @@ public class AuthService {
     }
 
     private Set<Langue> resolverLangues(Set<Long> ids) {
-        if (ids == null || ids.isEmpty()) return Set.of();
+        if (ids == null || ids.isEmpty()) return new HashSet<>();
         return ids.stream()
                 .map(id -> langueRepository.findById(id)
                         .orElseThrow(() -> new EntityNotFoundException("Langue introuvable : " + id)))
@@ -364,7 +378,7 @@ public class AuthService {
     }
 
     private Set<Role> resolverRoles(Set<Long> ids) {
-        if (ids == null || ids.isEmpty()) return Set.of();
+        if (ids == null || ids.isEmpty()) return new HashSet<>();
         return ids.stream()
                 .map(id -> roleRepository.findById(id)
                         .orElseThrow(() -> new EntityNotFoundException("Rôle introuvable : " + id)))
@@ -372,7 +386,7 @@ public class AuthService {
     }
 
     private Set<Agence> resolverAgences(Set<Long> ids) {
-        if (ids == null || ids.isEmpty()) return Set.of();
+        if (ids == null || ids.isEmpty()) return new HashSet<>();
         return ids.stream()
                 .map(id -> agenceRepository.findById(id)
                         .orElseThrow(() -> new EntityNotFoundException("Agence introuvable : " + id)))
@@ -380,7 +394,7 @@ public class AuthService {
     }
 
     private Set<Guide> resolverGuides(Set<Long> ids) {
-        if (ids == null || ids.isEmpty()) return Set.of();
+        if (ids == null || ids.isEmpty()) return new HashSet<>();
         return ids.stream()
                 .map(id -> guideRepository.findById(id)
                         .orElseThrow(() -> new EntityNotFoundException("Guide introuvable : " + id)))

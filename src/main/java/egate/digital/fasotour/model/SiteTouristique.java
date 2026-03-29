@@ -34,7 +34,7 @@ public class SiteTouristique {
 
     private String region;
 
-    private String noteMoyenne;
+    private Double noteMoyenne;
 
     private String image;
 
@@ -43,7 +43,8 @@ public class SiteTouristique {
     private String fichier;
 
     // Add Attribut
-    private LocalTime horaire;
+    private LocalTime heureOuverture;
+    private LocalTime heureFermeture;
     private Double tarif;
     private String statut = "Actif";
 

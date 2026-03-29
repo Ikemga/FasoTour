@@ -1,21 +1,28 @@
 package egate.digital.fasotour.controllers;
 
 import egate.digital.fasotour.dto.UtilisateurDTO;
+import egate.digital.fasotour.model.Agence;
+import egate.digital.fasotour.model.Guide;
+import egate.digital.fasotour.model.Touriste;
+import egate.digital.fasotour.model.Utilisateur;
+import egate.digital.fasotour.services.AuthService;
 import egate.digital.fasotour.services.UtilisateurService;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping("/v1/utilisateurs")
 public class UtilisateurController {
 
     private final UtilisateurService utilisateurService;
-
-    public UtilisateurController(UtilisateurService utilisateurService) {
-        this.utilisateurService = utilisateurService;
-    }
+    private  final AuthService authService;
 
     // Tous les utilisateurs
     @GetMapping
@@ -59,5 +66,39 @@ public class UtilisateurController {
             @RequestParam(required = false) Boolean actif
     ) {
         return ResponseEntity.ok(utilisateurService.searchUsers(search, actif));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUtilisateur(@PathVariable Long id) {
+        try {
+            // 1. Récupérer l'utilisateur pour détecter son type
+            Utilisateur utilisateur = utilisateurService.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Utilisateur introuvable : " + id));
+
+            // 2. Appeler le bon service selon le type
+            if (utilisateur instanceof Guide) {
+                authService.deleteGuide(id);
+
+            } else if (utilisateur instanceof Agence) {
+                authService.deleteAgence(id);
+
+            } else if (utilisateur instanceof Touriste) {
+                authService.deleteTouriste(id);
+
+            } else {
+                utilisateurService.remove(id); // Utilisateur simple sans relations
+            }
+
+            return ResponseEntity.ok()
+                    .body(Map.of("message", "Utilisateur supprimé avec succès"));
+
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Erreur lors de la suppression"));
+        }
     }
 }

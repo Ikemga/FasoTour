@@ -1,5 +1,6 @@
 package egate.digital.fasotour.model;
 
+import java.time.LocalDate;
 import java.util.*;
 
 import jakarta.persistence.*;
@@ -24,9 +25,9 @@ public class Facture {
 
     private String reference;
 
-    private Date dateEmission;
+    private LocalDate dateEmission;
 
-    private Double montatTotal;
+    private Double montantTotal;
 
     private Double montantPaie;
 

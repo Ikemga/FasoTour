@@ -1,8 +1,8 @@
 package egate.digital.fasotour.mappers;
 
-import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -16,7 +16,7 @@ public class CircuitMapper {
 
     private CircuitMapper() {}
 
-    // ── Entity → ResponseDTO ───────────────────────────────────────────────
+    // ── Entity ResponseDTO ───────────────────────────────────────────────
     public static CircuitResponseDTO toResponseDTO(Circuit circuit) {
         if (circuit == null) return null;
 
@@ -47,10 +47,7 @@ public class CircuitMapper {
                     .collect(Collectors.toList());
         }
 
-        // Convertir Duration en Long (jours)
-        Long duree = circuit.getDuree() != null
-                ? circuit.getDuree().toDays()
-                : null;
+        Long duree = circuit.getDuree();
 
         return new CircuitResponseDTO(
                 circuit.getId(),
@@ -75,7 +72,7 @@ public class CircuitMapper {
         );
     }
 
-    // ── RequestDTO → Entity ────────────────────────────────────────────────
+    // ── RequestDTO  Entity ────────────────────────────────────────────────
     public static Circuit toEntity(
             CircuitRequestDTO dto,
             List<Guide> guides,
@@ -95,19 +92,18 @@ public class CircuitMapper {
         circuit.setHeureDepart(dto.heureDepart());
         circuit.setImage(dto.image());
 
-        // Calcul automatique de la durée en jours
         if (dto.dateDebut() != null && dto.dateFin() != null) {
             long diffJours = ChronoUnit.DAYS.between(dto.dateDebut(), dto.dateFin());
-            circuit.setDuree(Duration.ofDays(diffJours));
+            circuit.setDuree(diffJours);
         }
 
         circuit.setPrixIndividuel(dto.prixIndividuel());
         circuit.setNombreExact(dto.nombreExact());
-        circuit.setNombreRestant(dto.nombreExact()); // init = nombreExact
+        circuit.setNombreRestant(dto.nombreExact());
         circuit.setStatut(dto.statut());
         circuit.setTransport(dto.transport());
 
-        circuit.setGuides(guides);
+        circuit.setGuides(new HashSet<>(guides));
         circuit.setAgence(agence);
         circuit.setSites(sites);
 

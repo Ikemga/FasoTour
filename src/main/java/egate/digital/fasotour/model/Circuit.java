@@ -31,12 +31,11 @@ public class Circuit {
     private LocalDate dateFin;
     private String description;
 
-    @Convert(converter = DurationConverter.class)
-    @Column(name = "duree")
-    private Duration duree;
+    private Long duree;
     private Double prixIndividuel;
     private Integer nombreExact;
-    private Integer nombreRestant;
+    @Column(nullable = false)
+    private Integer nombreRestant = 0;
     private LocalDateTime createdAt;
     private String statut;
     private boolean transport = false;
@@ -60,7 +59,7 @@ public class Circuit {
             joinColumns = @JoinColumn(name = "circuit_id"),
             inverseJoinColumns = @JoinColumn(name = "guide_id")
     )
-    private List<Guide> guides = new ArrayList<>();
+    private Set<Guide> guides = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "agence_id", nullable = true)

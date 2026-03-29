@@ -1,6 +1,7 @@
 package egate.digital.fasotour.model;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -47,5 +48,5 @@ public class Agence extends Utilisateur {
         joinColumns = @JoinColumn(name = "agence_id"),
         inverseJoinColumns = @JoinColumn(name = "guide_id")
     )
-    private Set<Guide> guides;
+    private Set<Guide> guides = new HashSet<>();
 }

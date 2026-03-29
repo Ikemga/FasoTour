@@ -3,7 +3,9 @@ package egate.digital.fasotour.controllers.usermanager;
 import egate.digital.fasotour.dto.user.AgenceRequestDTO;
 import egate.digital.fasotour.dto.user.AgenceResponseDTO;
 import egate.digital.fasotour.services.AuthService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,9 +43,20 @@ public class AgenceController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        authService.deleteAgence(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deleteAgence(@PathVariable Long id) {
+        try {
+            authService.deleteAgence(id);
+            return ResponseEntity.ok()
+                    .body(Map.of("message", "Agence supprimée avec succès"));
+
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Erreur lors de la suppression de l'agence"));
+        }
     }
 
     @PatchMapping("/{id}/toggle")

@@ -32,4 +32,5 @@ public interface CircuitRepository extends JpaRepository<Circuit, Long>{
 
     @Query("SELECT c FROM Circuit c WHERE LOWER(c.circuitName) LIKE LOWER(CONCAT('%', :circuitName, '%'))")
     List<Circuit> searchByName(@Param("circuitName") String circuitName);
+
 }

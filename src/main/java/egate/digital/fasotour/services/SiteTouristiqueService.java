@@ -98,9 +98,14 @@ public class SiteTouristiqueService {
         site.setLocalisation(dto.localisation());
         site.setCategories(resolveCategories(dto.categorieIds()));
 
+        site.setHeureOuverture(dto.heureOuverture());
+        site.setHeureFermeture(dto.heureFermeture());
+
+        site.setTarif(dto.tarif());
+        site.setStatut(dto.statut());
+
         return SiteTouristiqueMapper.toResponseDTO(siteTouristiqueRepository.save(site));
     }
-
     @Transactional
     public void delete(Long id) {
         if (!siteTouristiqueRepository.existsById(id)) {
@@ -123,8 +128,8 @@ public class SiteTouristiqueService {
                         "Le champ " + champ + " ne peut pas être vide !");
         });
 
-        if (dto.horaire() == null)
-            throw new IllegalArgumentException("Les horaires ne peuvent pas être vides !");
+        if (dto.heureOuverture() == null || dto.heureFermeture() == null)
+            throw new IllegalArgumentException("Les heures d'ouverture  et de fermeture ne peuvent pas être vides !");
 
         if (siteTouristiqueRepository.existsByNom(dto.nom()))
             throw new IllegalStateException("Un site avec ce nom existe déjà !");

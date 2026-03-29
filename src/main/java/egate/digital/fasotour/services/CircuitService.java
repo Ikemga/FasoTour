@@ -3,10 +3,7 @@ package egate.digital.fasotour.services;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import egate.digital.fasotour.dto.site.SiteTouristiqueResponseDTO;
@@ -102,33 +99,7 @@ public class CircuitService {
                 .collect(Collectors.toList());
     }
 
-    /*
-    @Transactional
-    public CircuitResponseDTO createCircuit(CircuitRequestDTO dto) {
-
-        List<Guide> guides = guideRepository.findAllById(dto.guideIds());
-        if (guides.isEmpty()) {
-            throw new RuntimeException("Aucun guide trouvé pour les IDs : " + dto.guideIds());
-        }
-
-        Agence agence = agenceRepository.findById(dto.agenceId())
-                .orElseThrow(() -> new RuntimeException("Agence non trouvée : " + dto.agenceId()));
-
-        Set<SiteTouristique> sites = siteRepository.findAllById(dto.siteIds())
-                .stream().collect(Collectors.toSet());
-
-        if (circuitRepository.existsByCircuitName(dto.circuitName())){
-            throw new EntityNotFoundException("Ce circuit existe déja! ");
-        }
-
-        Circuit circuit = CircuitMapper.toEntity(dto, guides, agence, sites);
-        return CircuitMapper.toResponseDTO(circuitRepository.save(circuit));
-    }
-    */
-
-
-
-    @Transactional
+      @Transactional
     public CircuitResponseDTO createCircuit(CircuitRequestDTO dto) {
 
         validerCircuit(dto);
@@ -157,41 +128,6 @@ public class CircuitService {
                 .collect(Collectors.toList());
     }
 
-    /*
-    @Transactional
-    public CircuitResponseDTO updatcircuite(Long id, CircuitRequestDTO dto) {
-
-        Circuit circuit = circuitRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Circuit non trouvé : " + id));
-
-        circuit.setCircuitName(dto.circuitName());
-        circuit.setDateDebut(dto.dateDebut());
-        circuit.setDateFin(dto.dateFin());
-        circuit.setDescription(dto.description());
-        circuit.setDuree(dto.duree());
-        circuit.setPrixIndividuel(dto.prixIndividuel());
-        circuit.setNombreExact(dto.nombreExact());
-        circuit.setStatut(dto.statut());
-        circuit.setTransport(dto.transport());
-
-        if (dto.guideIds() != null && !dto.guideIds().isEmpty()) {
-            circuit.setGuides(guideRepository.findAllById(dto.guideIds()));
-        }
-        if (dto.agenceId() != null) {
-            Agence agence = agenceRepository.findById(dto.agenceId())
-                    .orElseThrow(() -> new RuntimeException("Agence non trouvée : " + dto.agenceId()));
-            circuit.setAgence(agence);
-        }
-        if (dto.siteIds() != null && !dto.siteIds().isEmpty()) {
-            Set<SiteTouristique> sites = siteRepository.findAllById(dto.siteIds())
-                    .stream().collect(Collectors.toSet());
-            circuit.setSites(sites);
-        }
-
-        return CircuitMapper.toResponseDTO(circuitRepository.save(circuit));
-    }
-     */
-
     @Transactional
     public CircuitResponseDTO updatcircuite(Long id, CircuitRequestDTO dto) {
 
@@ -207,18 +143,20 @@ public class CircuitService {
         circuit.setHeureDepart(dto.heureDepart());
         circuit.setImage(dto.image());
         circuit.setPrixIndividuel(dto.prixIndividuel());
+        int reservations = circuit.getNombreExact() - circuit.getNombreRestant();
         circuit.setNombreExact(dto.nombreExact());
+        circuit.setNombreRestant(Math.max(0, dto.nombreExact() - reservations));
         circuit.setStatut(dto.statut());
         circuit.setTransport(dto.transport());
 
 
         if (dto.dateDebut() != null && dto.dateFin() != null) {
             long diffJours = ChronoUnit.DAYS.between(dto.dateDebut(), dto.dateFin());
-            circuit.setDuree(Duration.ofDays(diffJours));
+            circuit.setDuree(diffJours);
         }
 
         if (dto.guideIds() != null && !dto.guideIds().isEmpty()) {
-            circuit.setGuides(guideRepository.findAllById(dto.guideIds()));
+            circuit.setGuides(new HashSet<>(guideRepository.findAllById(dto.guideIds())));
         }
 
         if (dto.agenceId() != null) {

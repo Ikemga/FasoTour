@@ -1,5 +1,6 @@
 package egate.digital.fasotour.mappers;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import egate.digital.fasotour.dto.user.AgenceRequestDTO;
@@ -35,7 +36,7 @@ public class AgenceMapper {
         agence.setNumeroAgrement(dto.numeroAgrement());
         agence.setDateCreation(dto.dateCreation());
         agence.setLangues(langues);
-        agence.setRoles(roles);
+        agence.setRoles(new HashSet<>(roles));
         agence.setGuides(guides);
 
         return agence;

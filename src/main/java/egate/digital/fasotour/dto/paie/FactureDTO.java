@@ -1,12 +1,12 @@
 package egate.digital.fasotour.dto.paie;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public record FactureDTO(
         Long id,
         String reference,
-        Date dateEmission,
-        Double montatTotal,
+        LocalDate dateEmission,
+        Double montantTotal,
         Double montantPaie,
         Double montantRestant
 ) {}

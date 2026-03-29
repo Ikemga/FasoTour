@@ -6,11 +6,8 @@ import java.util.Date;
 public record ReservationRequestDTO(
 
         int nombrePersonne,
-        Double prixReservation,
-        LocalDate dateResevation,
         String commentaire,
-        String statut,
-        Date dateLimitePaiement,
+        LocalDate dateLimitePaiement,
 
         Long paiementId,
         Long circuitId,
